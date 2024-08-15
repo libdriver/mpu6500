@@ -157,7 +157,7 @@ uint8_t mpu6500_fifo_init(mpu6500_interface_t interface, mpu6500_address_t addr_
     }
     
     /* set the default rate */
-    res = mpu6500_set_sample_rate_divider(&gs_handle, 1000 / (MPU6500_FIFO_DEFAULT_RATE - 1));
+    res = mpu6500_set_sample_rate_divider(&gs_handle, (1000 / MPU6500_FIFO_DEFAULT_RATE) - 1);
     if (res != 0)
     {
         mpu6500_interface_debug_print("mpu6500: set sample rate divider failed.\n");
