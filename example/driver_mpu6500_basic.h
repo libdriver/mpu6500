@@ -86,8 +86,8 @@ extern "C"{
 
 /**
  * @brief     basic example init
- * @param[in] interface is the used interface
- * @param[in] addr_pin is the iic device address
+ * @param[in] interface used interface
+ * @param[in] addr_pin iic device address
  * @return    status code
  *            - 0 success
  *            - 1 init failed
@@ -106,8 +106,8 @@ uint8_t mpu6500_basic_deinit(void);
 
 /**
  * @brief      basic example read
- * @param[out] *g points to a converted data buffer
- * @param[out] *dps points to a converted data buffer
+ * @param[out] *g pointer to a converted data buffer
+ * @param[out] *dps pointer to a converted data buffer
  * @return     status code
  *             - 0 success
  *             - 1 read failed
@@ -117,7 +117,7 @@ uint8_t mpu6500_basic_read(float g[3], float dps[3]);
 
 /**
  * @brief      basic example read temperature
- * @param[out] *degrees points to a converted data buffer
+ * @param[out] *degrees pointer to a converted data buffer
  * @return     status code
  *             - 0 success
  *             - 1 read temperature failed
