@@ -1055,8 +1055,7 @@ uint8_t mpu6500_dmp_load_firmware(mpu6500_handle_t *handle)
     tmp[0] = (0x0400 >> 8) & 0xFF;                                                       /* set the addr high */
     tmp[1] = (0x0400 >> 0) & 0xFF;                                                       /* set the addr low */
     
-    if (handle->iic_write(handle->iic_addr, MPU6500_REG_PROGRAM_START,
-                         (uint8_t *)tmp, 2) != 0)                                        /* write data */
+    if (a_mpu6500_write(handle, MPU6500_REG_PROGRAM_START, (uint8_t *)tmp, 2) != 0)      /* write data */
     {
         handle->debug_print("mpu6500: set program start failed.\n");                     /* set program start failed */
         
