@@ -25,7 +25,7 @@
 var NAVTREE =
 [
   [ "LibDriver MPU6500", "index.html", [
-    [ "Modules", "modules.html", "modules" ],
+    [ "Topics", "topics.html", "topics" ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -51,13 +51,11 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "annotated.html",
-"group__mpu6500__basic__driver.html#ga15742b7acfe39afebe409954874d5610",
-"group__mpu6500__basic__driver.html#ga76eef714730885a87e31798e3c993ba6",
-"group__mpu6500__basic__driver.html#gaef9b8a94c7c0619a228827d13f2b8884",
-"group__mpu6500__basic__driver.html#ggae80519898fbe0bb9bd459aca98994447a8f1aa82b51a9a83e71b90791630341e3",
-"group__mpu6500__example__driver.html#ga2feda3ae541edafe90ffb073d91ad194",
-"group__mpu6500__link__driver.html#ga2aa2fa52f7a60aa97388c393aece9640"
+"group__mpu6500__basic__driver.html#ga31678edebb7fd7d993ce26ae8182114d",
+"group__mpu6500__basic__driver.html#ggaaeee106d5c3f46ea2c3b2e6f2a9a0d1aa957f6c980d824240df6dd370cfc116e8",
+"group__mpu6500__link__driver.html#ga68a25eb5f20d36e90ded0a7342585d46"
 ];
 
-var SYNCONMSG = 'click to disable panel synchronisation';
-var SYNCOFFMSG = 'click to enable panel synchronisation';
+var SYNCONMSG = 'click to disable panel synchronization';
+var SYNCOFFMSG = 'click to enable panel synchronization';
+var LISTOFALLMEMBERS = 'List of all members';
