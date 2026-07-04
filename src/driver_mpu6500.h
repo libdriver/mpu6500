@@ -242,8 +242,8 @@ typedef enum
  */
 typedef enum  
 {
-    MPU6500_PIN_LEVEL_HIGH = 0x00,        /**< active low */
-    MPU6500_PIN_LEVEL_LOW  = 0x01,        /**< active high */
+    MPU6500_PIN_LEVEL_HIGH = 0x00,        /**< active high */
+    MPU6500_PIN_LEVEL_LOW  = 0x01,        /**< active low */
 } mpu6500_pin_level_t;
 
 /**

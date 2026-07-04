@@ -3884,7 +3884,7 @@ $(function(){initNavTree('driver__mpu6500_8c_source.html','',''); });
 <div class="line"><a id="l04403" name="l04403"></a><span class="lineno"> 4403</span>        <span class="keywordflow">return</span> 1;                                                            <span class="comment">/* return error */</span></div>
 <div class="line"><a id="l04404" name="l04404"></a><span class="lineno"> 4404</span>    }</div>
 <div class="line"><a id="l04405" name="l04405"></a><span class="lineno"> 4405</span>    *raw = (int16_t)((uint16_t)buf[0] &lt;&lt; 8) | buf[1];                        <span class="comment">/* get the raw */</span></div>
-<div class="line"><a id="l04406" name="l04406"></a><span class="lineno"> 4406</span>    *degrees = (float)(*raw) / 321.0f + 21.0f;                               <span class="comment">/* convert the degrees */</span></div>
+<div class="line"><a id="l04406" name="l04406"></a><span class="lineno"> 4406</span>    *degrees = (float)(*raw) / 333.87f + 21.0f;                              <span class="comment">/* convert the degrees */</span></div>
 <div class="line"><a id="l04407" name="l04407"></a><span class="lineno"> 4407</span>    </div>
 <div class="line"><a id="l04408" name="l04408"></a><span class="lineno"> 4408</span>    <span class="keywordflow">return</span> 0;                                                                <span class="comment">/* success return 0 */</span></div>
 <div class="line"><a id="l04409" name="l04409"></a><span class="lineno"> 4409</span>}</div>

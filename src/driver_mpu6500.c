@@ -4403,7 +4403,7 @@ uint8_t mpu6500_read_temperature(mpu6500_handle_t *handle, int16_t (*raw), float
         return 1;                                                            /* return error */
     }
     *raw = (int16_t)((uint16_t)buf[0] << 8) | buf[1];                        /* get the raw */
-    *degrees = (float)(*raw) / 321.0f + 21.0f;                               /* convert the degrees */
+    *degrees = (float)(*raw) / 333.87f + 21.0f;                              /* convert the degrees */
     
     return 0;                                                                /* success return 0 */
 }
