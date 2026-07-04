@@ -3338,7 +3338,7 @@ uint8_t mpu6500_dmp_get_tap_thresh(mpu6500_handle_t *handle, mpu6500_axis_t axis
  *                - 4 dmp is not inited
  *                - 5 quat check error
  *                - 6 fifo overflow
- *                - 7 fifo data is too little
+ *                - 7 fifo length is not enough
  *                - 8 no data
  * @note          none
  */
@@ -3433,7 +3433,7 @@ uint8_t mpu6500_dmp_read(mpu6500_handle_t *handle,
     }
     if (count < len)                                                                                                      /* check the count */
     {
-        handle->debug_print("mpu6500: fifo data is too little.\n");                                                       /* fifo data is too little */
+        handle->debug_print("mpu6500: fifo length is not enough.\n");                                                     /* fifo length is not enough */
         
         return 7;                                                                                                         /* return error */
     }

@@ -3300,7 +3300,7 @@ uint8_t mpu6500_dmp_get_tap_thresh(mpu6500_handle_t *handle, mpu6500_axis_t axis
  *                - 4 dmp is not inited
  *                - 5 quat check error
  *                - 6 fifo overflow
- *                - 7 fifo data is too little
+ *                - 7 fifo length is not enough
  *                - 8 no data
  * @note          none
  */
