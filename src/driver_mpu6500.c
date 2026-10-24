@@ -861,11 +861,11 @@ static uint8_t a_mpu6500_get_st_biases(mpu6500_handle_t *handle,
     }
     if (hw_test_enable != 0)                                                                        /* if enable */
     {
-        data[0] = 0x00 | 0xE0;                                                                      /* enable 2g and test */
+        data[0] = 0x18 | 0xE0;                                                                      /* enable 16g and test */
     }
     else
     {
-        data[0] = 0x00;                                                                             /* enable 2g */
+        data[0] = 0x18;                                                                             /* enable 16g */
     }
     res = a_mpu6500_write(handle, MPU6500_REG_ACCEL_CONFIG, data, 1);                               /* read the accel config */
     if (res != 0)                                                                                   /* check the result */
@@ -939,9 +939,9 @@ static uint8_t a_mpu6500_get_st_biases(mpu6500_handle_t *handle,
     gyro_offset[0] = (int32_t)(((int64_t)gyro_offset[0] << 16) / (32768 / 250) / pack_cnt);         /* set the gyro offset 0 */
     gyro_offset[1] = (int32_t)(((int64_t)gyro_offset[1] << 16) / (32768 / 250) / pack_cnt);         /* set the gyro offset 1 */
     gyro_offset[2] = (int32_t)(((int64_t)gyro_offset[2] << 16) / (32768 / 250) / pack_cnt);         /* set the gyro offset 2 */
-    accel_offset[0] = (int32_t)(((int64_t)accel_offset[0] << 16) / (32768 / 2) / pack_cnt);         /* set the accel offset 0 */
-    accel_offset[1] = (int32_t)(((int64_t)accel_offset[1] << 16) / (32768 / 2) / pack_cnt);         /* set the accel offset 1 */
-    accel_offset[2] = (int32_t)(((int64_t)accel_offset[2] << 16) / (32768 / 2) / pack_cnt);         /* set the accel offset 2 */
+    accel_offset[0] = (int32_t)(((int64_t)accel_offset[0] << 16) / (32768 / 16) / pack_cnt);        /* set the accel offset 0 */
+    accel_offset[1] = (int32_t)(((int64_t)accel_offset[1] << 16) / (32768 / 16) / pack_cnt);        /* set the accel offset 1 */
+    accel_offset[2] = (int32_t)(((int64_t)accel_offset[2] << 16) / (32768 / 16) / pack_cnt);        /* set the accel offset 2 */
     if (accel_offset[2] > 0L)                                                                       /* check the accel offset */
     {
         accel_offset[2] -= 65536L;                                                                  /* -65536 */
