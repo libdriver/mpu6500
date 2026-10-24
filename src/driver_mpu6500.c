@@ -117,7 +117,7 @@
 #define MPU6500_REG_GYRO_ZOUT_H         0x47        /**< gyro zout high register */
 #define MPU6500_REG_GYRO_ZOUT_L         0x48        /**< gyro zout low register */
 #define MPU6500_REG_SIGNAL_PATH_RESET   0x68        /**< signal path reset register */
-#define MPU6500_REG_MOT_DETECT_CTRL     0x69        /**< motion detect ctrl register */
+#define MPU6500_REG_ACCEL_INTEL_CTRL    0x69        /**< accelerometer intelligence control register */
 #define MPU6500_REG_USER_CTRL           0x6A        /**< user ctrl register */
 #define MPU6500_REG_PWR_MGMT_1          0x6B        /**< power management 1 register */
 #define MPU6500_REG_PWR_MGMT_2          0x6C        /**< power management 2 register */
@@ -861,11 +861,11 @@ static uint8_t a_mpu6500_get_st_biases(mpu6500_handle_t *handle,
     }
     if (hw_test_enable != 0)                                                                        /* if enable */
     {
-        data[0] = 0x18 | 0xE0;                                                                      /* enable 2g and test */
+        data[0] = 0x00 | 0xE0;                                                                      /* enable 2g and test */
     }
     else
     {
-        data[0] = 0x18;                                                                             /* enable 2g */
+        data[0] = 0x00;                                                                             /* enable 2g */
     }
     res = a_mpu6500_write(handle, MPU6500_REG_ACCEL_CONFIG, data, 1);                               /* read the accel config */
     if (res != 0)                                                                                   /* check the result */
@@ -939,9 +939,9 @@ static uint8_t a_mpu6500_get_st_biases(mpu6500_handle_t *handle,
     gyro_offset[0] = (int32_t)(((int64_t)gyro_offset[0] << 16) / (32768 / 250) / pack_cnt);         /* set the gyro offset 0 */
     gyro_offset[1] = (int32_t)(((int64_t)gyro_offset[1] << 16) / (32768 / 250) / pack_cnt);         /* set the gyro offset 1 */
     gyro_offset[2] = (int32_t)(((int64_t)gyro_offset[2] << 16) / (32768 / 250) / pack_cnt);         /* set the gyro offset 2 */
-    accel_offset[0] = (int32_t)(((int64_t)accel_offset[0] << 16) / (32768 / 16) / pack_cnt);        /* set the accel offset 0 */
-    accel_offset[1] = (int32_t)(((int64_t)accel_offset[1] << 16) / (32768 / 16) / pack_cnt);        /* set the accel offset 1 */
-    accel_offset[2] = (int32_t)(((int64_t)accel_offset[2] << 16) / (32768 / 16) / pack_cnt);        /* set the accel offset 2 */
+    accel_offset[0] = (int32_t)(((int64_t)accel_offset[0] << 16) / (32768 / 2) / pack_cnt);         /* set the accel offset 0 */
+    accel_offset[1] = (int32_t)(((int64_t)accel_offset[1] << 16) / (32768 / 2) / pack_cnt);         /* set the accel offset 1 */
+    accel_offset[2] = (int32_t)(((int64_t)accel_offset[2] << 16) / (32768 / 2) / pack_cnt);         /* set the accel offset 2 */
     if (accel_offset[2] > 0L)                                                                       /* check the accel offset */
     {
         accel_offset[2] -= 65536L;                                                                  /* -65536 */
@@ -3420,7 +3420,7 @@ uint8_t mpu6500_dmp_read(mpu6500_handle_t *handle,
         return 1;                                                                                                         /* return error */
     }
     count = (uint16_t)(((uint16_t)buf[0] << 8) | buf[1]);                                                                 /* set count */
-    count = (count < 1024) ? count : 1024;                                                                                /* just the counter */
+    count = (count < 512) ? count : 512;                                                                                  /* just the counter */
     count = (count < (*l) * len) ? count : ((*l) *len);                                                                   /* just outer buffer size */
     count = (count / len) * len;                                                                                          /* len times */
     *l = count / len;                                                                                                     /* set the output length */
@@ -4056,6 +4056,22 @@ uint8_t mpu6500_init(mpu6500_handle_t *handle)
         }
         if ((prev & (1 << 7)) == 0)                                                 /* check the result */
         {
+            if (handle->iic_spi != MPU6500_INTERFACE_IIC)                           /* spi interface */
+            {
+                handle->delay_ms(100);                                              /* wait 100 ms */
+                prev = 0x07;                                                        /* set command */
+                res = a_mpu6500_write(handle, MPU6500_REG_SIGNAL_PATH_RESET, 
+                                      &prev, 1);
+                if (res != 0)                                                       /* check the result */
+                {
+                    handle->debug_print("mpu6500: signal path reset failed.\n");    /* signal path reset failed */
+                    (void)a_mpu6500_deinit(handle);                                 /* iic or spi deinit */
+
+                    return 4;                                                       /* return error */
+                }
+                
+                handle->delay_ms(100);                                              /* wait 100 ms */
+            }
             handle->inited = 1;                                                     /* flag the inited bit */
             handle->dmp_inited = 0;                                                 /* flag closed */
             
@@ -4219,7 +4235,7 @@ uint8_t mpu6500_read(mpu6500_handle_t *handle,
         }
         
         count = (uint16_t)(((uint16_t)buf[0] << 8) | buf[1]);                                      /* set count */
-        count = (count < 1024) ? count : 1024;                                                     /* just the counter */
+        count = (count < 512) ? count : 512;                                                       /* just the counter */
         count = (count < ((*len) * 12)) ? count : ((*len) * 12);                                   /* just outer buffer size */
         count = (count / 12) * 12;                                                                 /* 12 times */
         *len = count / 12;                                                                         /* set the output length */
@@ -6791,19 +6807,19 @@ uint8_t mpu6500_set_wake_on_motion(mpu6500_handle_t *handle, mpu6500_bool_t enab
         return 3;                                                                           /* return error */
     }
     
-    res = a_mpu6500_read(handle, MPU6500_REG_MOT_DETECT_CTRL, (uint8_t *)&prev, 1);         /* read config */
+    res = a_mpu6500_read(handle, MPU6500_REG_ACCEL_INTEL_CTRL, (uint8_t *)&prev, 1);        /* read config */
     if (res != 0)                                                                           /* check result */
     {
-        handle->debug_print("mpu6500: read motion detect ctrl failed.\n");                  /* read motion detect ctrl failed */
+        handle->debug_print("mpu6500: read accel intel ctrl failed.\n");                    /* read accel intel ctrl failed */
        
         return 1;                                                                           /* return error */
     }
     prev &= ~(1 << 7);                                                                      /* clear config */
     prev |= enable << 7;                                                                    /* set config */
-    res = a_mpu6500_write(handle, MPU6500_REG_MOT_DETECT_CTRL, (uint8_t *)&prev, 1);        /* write config */
+    res = a_mpu6500_write(handle, MPU6500_REG_ACCEL_INTEL_CTRL, (uint8_t *)&prev, 1);       /* write config */
     if (res != 0)                                                                           /* check result */
     {
-        handle->debug_print("mpu6500: write motion detect ctrl failed.\n");                 /* write motion detect ctrl failed */
+        handle->debug_print("mpu6500: write accel intel ctrl ctrl failed.\n");              /* write accel intel ctrl failed */
        
         return 1;                                                                           /* return error */
     }
@@ -6836,10 +6852,10 @@ uint8_t mpu6500_get_wake_on_motion(mpu6500_handle_t *handle, mpu6500_bool_t *ena
         return 3;                                                                           /* return error */
     }
     
-    res = a_mpu6500_read(handle, MPU6500_REG_MOT_DETECT_CTRL, (uint8_t *)&prev, 1);         /* read config */
+    res = a_mpu6500_read(handle, MPU6500_REG_ACCEL_INTEL_CTRL, (uint8_t *)&prev, 1);        /* read config */
     if (res != 0)                                                                           /* check result */
     {
-        handle->debug_print("mpu6500: read motion detect ctrl failed.\n");                  /* read motion detect ctrl failed */
+        handle->debug_print("mpu6500: read accel intel ctrl failed.\n");                    /* read accel intel ctrl failed */
        
         return 1;                                                                           /* return error */
     }
@@ -6873,19 +6889,19 @@ uint8_t mpu6500_set_accel_compare_with_previous_sample(mpu6500_handle_t *handle,
         return 3;                                                                           /* return error */
     }
     
-    res = a_mpu6500_read(handle, MPU6500_REG_MOT_DETECT_CTRL, (uint8_t *)&prev, 1);         /* read config */
+    res = a_mpu6500_read(handle, MPU6500_REG_ACCEL_INTEL_CTRL, (uint8_t *)&prev, 1);        /* read config */
     if (res != 0)                                                                           /* check result */
     {
-        handle->debug_print("mpu6500: read motion detect ctrl failed.\n");                  /* read motion detect ctrl failed */
+        handle->debug_print("mpu6500: read accel intel ctrl failed.\n");                    /* read accel intel ctrl failed */
        
         return 1;                                                                           /* return error */
     }
     prev &= ~(1 << 6);                                                                      /* clear config */
     prev |= enable << 6;                                                                    /* set config */
-    res = a_mpu6500_write(handle, MPU6500_REG_MOT_DETECT_CTRL, (uint8_t *)&prev, 1);        /* write config */
+    res = a_mpu6500_write(handle, MPU6500_REG_ACCEL_INTEL_CTRL, (uint8_t *)&prev, 1);       /* write config */
     if (res != 0)                                                                           /* check result */
     {
-        handle->debug_print("mpu6500: write motion detect ctrl failed.\n");                 /* write motion detect ctrl failed */
+        handle->debug_print("mpu6500: write accel intel ctrl failed.\n");                   /* write accel intel ctrl failed */
        
         return 1;                                                                           /* return error */
     }
@@ -6918,10 +6934,10 @@ uint8_t mpu6500_get_accel_compare_with_previous_sample(mpu6500_handle_t *handle,
         return 3;                                                                           /* return error */
     }
     
-    res = a_mpu6500_read(handle, MPU6500_REG_MOT_DETECT_CTRL, (uint8_t *)&prev, 1);         /* read config */
+    res = a_mpu6500_read(handle, MPU6500_REG_ACCEL_INTEL_CTRL, (uint8_t *)&prev, 1);        /* read config */
     if (res != 0)                                                                           /* check result */
     {
-        handle->debug_print("mpu6500: read motion detect ctrl failed.\n");                  /* read motion detect ctrl failed */
+        handle->debug_print("mpu6500: read accel intel ctrl failed.\n");                    /* read accel intel ctrl failed */
        
         return 1;                                                                           /* return error */
     }
@@ -7211,7 +7227,7 @@ uint8_t mpu6500_set_interrupt_latch(mpu6500_handle_t *handle, mpu6500_bool_t ena
         return 1;                                                                       /* return error */
     }
     prev &= ~(1 << 5);                                                                  /* clear config */
-    prev |= (!enable) << 5;                                                             /* set config */
+    prev |= enable << 5;                                                                /* set config */
     res = a_mpu6500_write(handle, MPU6500_REG_INT_PIN_CFG, (uint8_t *)&prev, 1);        /* write interrupt pin */
     if (res != 0)                                                                       /* check result */
     {
@@ -7255,7 +7271,7 @@ uint8_t mpu6500_get_interrupt_latch(mpu6500_handle_t *handle, mpu6500_bool_t *en
        
         return 1;                                                                       /* return error */
     }
-    *enable = (mpu6500_bool_t)(!((prev >> 5) & 0x01));                                  /* get the bool */
+    *enable = (mpu6500_bool_t)((prev >> 5) & 0x01);                                     /* get the bool */
     
     return 0;                                                                           /* success return 0 */
 }
@@ -8152,8 +8168,8 @@ uint8_t mpu6500_set_accelerometer_x_offset(mpu6500_handle_t *handle, int16_t off
         return 3;                                                          /* return error */
     }
     
-    buf[0] = (offset >> 8) & 0xFF;                                         /* set high */
-    buf[1] = (offset >> 0) & 0xFF;                                         /* set low */
+    buf[0] = (uint8_t)((offset >> 7) & 0xFF);                              /* set high */
+    buf[1] = (uint8_t)((offset << 1) & 0xFE);                              /* set low */
     res = a_mpu6500_write(handle, MPU6500_REG_XA_OFFSET_H, buf, 2);        /* write xa offset */
     if (res != 0)                                                          /* check result */
     {
@@ -8197,7 +8213,8 @@ uint8_t mpu6500_get_accelerometer_x_offset(mpu6500_handle_t *handle, int16_t *of
        
         return 1;                                                         /* return error */
     }
-    *offset = (int16_t)(((uint16_t)buf[0] << 8) | buf[1]);                /* set the offset */
+    *offset = (int16_t)(((int16_t)(((uint16_t)buf[0] << 8) | 
+                                              buf[1])) >> 1);             /* set the offset */
     
     return 0;                                                             /* success return 0 */
 }
@@ -8227,8 +8244,8 @@ uint8_t mpu6500_set_accelerometer_y_offset(mpu6500_handle_t *handle, int16_t off
         return 3;                                                          /* return error */
     }
     
-    buf[0] = (offset >> 8) & 0xFF;                                         /* set high */
-    buf[1] = (offset >> 0) & 0xFF;                                         /* set low */
+    buf[0] = (uint8_t)((offset >> 7) & 0xFF);                              /* set high */
+    buf[1] = (uint8_t)((offset << 1) & 0xFE);                              /* set low */
     res = a_mpu6500_write(handle, MPU6500_REG_YA_OFFSET_H, buf, 2);        /* write ya offset */
     if (res != 0)                                                          /* check result */
     {
@@ -8272,7 +8289,8 @@ uint8_t mpu6500_get_accelerometer_y_offset(mpu6500_handle_t *handle, int16_t *of
        
         return 1;                                                         /* return error */
     }
-    *offset = (int16_t)(((uint16_t)buf[0] << 8) | buf[1]);                /* set the offset */
+    *offset = (int16_t)(((int16_t)(((uint16_t)buf[0] << 8) | 
+                                     buf[1])) >> 1);                      /* set the offset */
     
     return 0;                                                             /* success return 0 */
 }
@@ -8302,8 +8320,8 @@ uint8_t mpu6500_set_accelerometer_z_offset(mpu6500_handle_t *handle, int16_t off
         return 3;                                                          /* return error */
     }
     
-    buf[0] = (offset >> 8) & 0xFF;                                         /* set high */
-    buf[1] = (offset >> 0) & 0xFF;                                         /* set low */
+    buf[0] = (uint8_t)((offset >> 7) & 0xFF);                              /* set high */
+    buf[1] = (uint8_t)((offset << 1) & 0xFE);                              /* set low */
     res = a_mpu6500_write(handle, MPU6500_REG_ZA_OFFSET_H, buf, 2);        /* write za offset */
     if (res != 0)                                                          /* check result */
     {
@@ -8347,7 +8365,8 @@ uint8_t mpu6500_get_accelerometer_z_offset(mpu6500_handle_t *handle, int16_t *of
        
         return 1;                                                         /* return error */
     }
-    *offset = (int16_t)(((uint16_t)buf[0] << 8) | buf[1]);                /* set the offset */
+    *offset = (int16_t)(((int16_t)(((uint16_t)buf[0] << 8) | 
+                                              buf[1])) >> 1);             /* set the offset */
     
     return 0;                                                             /* success return 0 */
 }
